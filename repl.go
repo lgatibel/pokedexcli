@@ -1,0 +1,62 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func cleanInput(text string) []string {
+	return strings.Split(strings.Trim(strings.ToLower(text), " "), " ")
+}
+
+func startRepl(config config) {
+	scanner := bufio.NewScanner(os.Stdin)
+	prompt := "Pokedex > "
+	commands := map[string]cliCommand{
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"map": {
+			name:        "map",
+			description: "Display the next maps",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Display the previous maps",
+			callback:    commandMapB,
+		},
+	}
+	fmt.Printf("%s", prompt)
+	for scanner.Scan() {
+		text := scanner.Text()
+		words := cleanInput(text)
+		firstWord := words[0]
+		if command, ok := commands[firstWord]; ok {
+			if err := command.callback(&config); err != nil {
+				fmt.Println(err.Error())
+			}
+
+			if command.name == "help" {
+				for name, command := range commands {
+					fmt.Printf("%s: %s\n", name, command.description)
+				}
+			}
+		} else {
+			fmt.Printf("Unknown command: %s\n", firstWord)
+		}
+		fmt.Printf("%s", prompt)
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "shouldn't see an error scanning a string")
+	}
+}
