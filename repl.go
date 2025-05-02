@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/lgatibel/pokedexcli/internal/pokeapi"
 )
 
 func cleanInput(text string) []string {
 	return strings.Split(strings.Trim(strings.ToLower(text), " "), " ")
 }
 
-func startRepl(config config) {
+func startRepl(config *pokeapi.Config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	prompt := "Pokedex > "
 	commands := map[string]cliCommand{
@@ -42,7 +44,7 @@ func startRepl(config config) {
 		words := cleanInput(text)
 		firstWord := words[0]
 		if command, ok := commands[firstWord]; ok {
-			if err := command.callback(&config); err != nil {
+			if err := command.callback(config); err != nil {
 				fmt.Println(err.Error())
 			}
 

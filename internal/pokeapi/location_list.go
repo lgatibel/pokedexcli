@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type resultLocation struct {
@@ -27,8 +28,18 @@ type Page struct {
 	Offset int
 }
 
-func ListLocations(page Page) (Locations, error) {
-	url := BaseUrl + fmt.Sprintf("?limit=%d&offset=%d", page.Limit, page.Offset)
+func ListLocations(config *Config) (Locations, error) {
+	url := BaseUrl + fmt.Sprintf("?limit=%d&offset=%d", config.Page.Limit, config.Page.Offset)
+	cache, err := config.Cache.Get(url)
+	var locations Locations
+	if err == nil {
+		err = json.Unmarshal(cache, &locations)
+		if err == nil {
+			return locations, nil
+		}
+	}
+	waitTime := time.Second * 2
+	time.Sleep(waitTime)
 	res, err := http.Get(url)
 	if err != nil {
 		return Locations{}, fmt.Errorf("bad request: %s", err)
@@ -39,11 +50,22 @@ func ListLocations(page Page) (Locations, error) {
 	if err := decoder.Decode(&responsesLocations); err != nil {
 		return Locations{}, fmt.Errorf("bad parsing of maps: %s", err)
 	}
-	var locations Locations
 	for _, l := range responsesLocations.Results {
 		locations.List = append(locations.List, l.Name)
 	}
 	locations.NextUrl = responsesLocations.Next
-	locations.PreviousUrl = responsesLocations.Next
+	locations.PreviousUrl = responsesLocations.Previous
+
+	jsonData, err := json.Marshal(locations)
+	if err != nil {
+		return locations, fmt.Errorf("error serializing locations: %s", err)
+	}
+	config.NextLocationsURL = locations.NextUrl
+	config.PrevLocationsURL = locations.PreviousUrl
+	err = config.Cache.Add(url, jsonData)
+	if err != nil {
+		return locations, fmt.Errorf("error caching locations: %s", err)
+	}
+
 	return locations, nil
 }

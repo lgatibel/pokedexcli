@@ -9,16 +9,16 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *config) error
+	callback    func(config *pokeapi.Config) error
 }
 
 // "Welcome to the Pokedex!\nUsage:\n\nhelp: Displays a help message\nexit: Exit the Pokedex",
 func main() {
-	config := config{
-		pokeapiClient:    pokeapi.NewClient(3 * time.Second),
-		prevLocationsURL: "",
-		nextLocationsURL: "",
-		page: pokeapi.Page{
+	config := &pokeapi.Config{
+		PokeapiClient:    pokeapi.NewClient(3*time.Second, 5*time.Second),
+		PrevLocationsURL: "",
+		NextLocationsURL: "",
+		Page: pokeapi.Page{
 			Limit:  20,
 			Offset: 0,
 		},

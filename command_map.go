@@ -6,40 +6,31 @@ import (
 	"github.com/lgatibel/pokedexcli/internal/pokeapi"
 )
 
-type config struct {
-	pokeapiClient    pokeapi.Client
-	nextLocationsURL string
-	prevLocationsURL string
-	page             pokeapi.Page
-}
-
-func commandMapB(config *config) error {
-	locations, err := pokeapi.ListLocations(config.page)
-	if config.page.Offset < 1 {
+func commandMapB(config *pokeapi.Config) error {
+	if config.Page.Offset < 1 {
 		return fmt.Errorf("you're on the first page")
 	}
+	locations, err := pokeapi.ListLocations(config)
 	if err != nil {
 		return err
 	}
 	for _, location := range locations.List {
 		fmt.Println(location)
 	}
-	config.nextLocationsURL = locations.NextUrl
-	config.prevLocationsURL = locations.PreviousUrl
-	config.page.Offset -= len(locations.List)
+	if config.Page.Offset >= config.Page.Limit {
+		config.Page.Offset -= config.Page.Limit
+	}
 	return nil
 }
 
-func commandMap(config *config) error {
-	locations, err := pokeapi.ListLocations(config.page)
+func commandMap(config *pokeapi.Config) error {
+	locations, err := pokeapi.ListLocations(config)
 	if err != nil {
 		return err
 	}
 	for _, location := range locations.List {
 		fmt.Println(location)
 	}
-	config.nextLocationsURL = locations.NextUrl
-	config.prevLocationsURL = locations.PreviousUrl
-	config.page.Offset += len(locations.List)
+	config.Page.Offset += len(locations.List)
 	return nil
 }
