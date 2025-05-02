@@ -10,15 +10,15 @@ func commandMapB(config *pokeapi.Config) error {
 	if config.Page.Offset < 1 {
 		return fmt.Errorf("you're on the first page")
 	}
+	if config.Page.Offset >= config.Page.Limit {
+		config.Page.Offset -= config.Page.Limit
+	}
 	locations, err := pokeapi.ListLocations(config)
 	if err != nil {
 		return err
 	}
 	for _, location := range locations.List {
 		fmt.Println(location)
-	}
-	if config.Page.Offset >= config.Page.Limit {
-		config.Page.Offset -= config.Page.Limit
 	}
 	return nil
 }

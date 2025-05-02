@@ -66,6 +66,5 @@ func ListLocations(config *Config) (Locations, error) {
 	if err != nil {
 		return locations, fmt.Errorf("error caching locations: %s", err)
 	}
-
 	return locations, nil
 }
