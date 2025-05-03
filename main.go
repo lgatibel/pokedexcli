@@ -22,6 +22,7 @@ func main() {
 			Limit:  20,
 			Offset: 0,
 		},
+		Pokedex: make(map[string]pokeapi.Pokemon),
 	}
 	startRepl(config)
 }

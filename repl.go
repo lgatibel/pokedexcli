@@ -42,6 +42,11 @@ func startRepl(config *pokeapi.Config) {
 			description: "Display the pokemon list in the area",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch",
+			description: "Try to catch a pokemon",
+			callback:    commandCatch,
+		},
 	}
 	fmt.Printf("%s", prompt)
 	for scanner.Scan() {

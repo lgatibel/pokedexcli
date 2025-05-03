@@ -12,6 +12,7 @@ type Config struct {
 	NextLocationsURL string
 	PrevLocationsURL string
 	Page             Page
+	Pokedex          map[string]Pokemon
 }
 
 type Client struct {

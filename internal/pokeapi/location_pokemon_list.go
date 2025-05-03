@@ -18,7 +18,7 @@ type ressultLocationPokemon struct {
 }
 
 func ListLocationPokemon(config *Config, param string) (pokemonList, error) {
-	url := baseUrl + param
+	url := baseUrl + locationEndpoint + param
 	var pokemons pokemonList
 	res, err := http.Get(url)
 	if err != nil {
