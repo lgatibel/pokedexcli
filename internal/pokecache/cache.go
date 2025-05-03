@@ -1,7 +1,6 @@
 package pokecache
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -65,10 +64,8 @@ func remove(c *Cache) {
 	for key, entry := range c.Datas {
 		c.mu.Lock()
 		if time.Since(entry.createdAt) >= c.Interval {
-			fmt.Printf("removing key : %v\n", key)
 			delete(c.Datas, key)
 		}
 		c.mu.Unlock()
 	}
-	fmt.Println(c.Datas)
 }
