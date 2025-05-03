@@ -47,6 +47,16 @@ func startRepl(config *pokeapi.Config) {
 			description: "Try to catch a pokemon",
 			callback:    commandCatch,
 		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inpect a specific Pokemon",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Show all Pokemon present in the Pokedex",
+			callback:    commandPokedex,
+		},
 	}
 	fmt.Printf("%s", prompt)
 	for scanner.Scan() {
