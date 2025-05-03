@@ -37,6 +37,11 @@ func startRepl(config *pokeapi.Config) {
 			description: "Display the previous maps",
 			callback:    commandMapB,
 		},
+		"expolore": {
+			name:        "explore",
+			description: "Display the pokemon list in the area",
+			callback:    commandExplore,
+		},
 	}
 	fmt.Printf("%s", prompt)
 	for scanner.Scan() {

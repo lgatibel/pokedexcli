@@ -1,0 +1,61 @@
+package pokeapi
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+type locationPokemon struct {
+	List        []string
+	NextUrl     string
+	PreviousUrl string
+}
+
+type resultLocationPokemon struct {
+	pokemon_encounters []struct {
+		pokemon struct {
+			name string
+			url  string
+		}
+	}
+}
+
+func ListLocationPokemon(config *Config) (locationPokemon, error) {
+	url := BaseUrl + fmt.Sprintf("?limit=%d&offset=%d", config.Page.Limit, config.Page.Offset)
+	var locations locationPokemon
+	cache, ok := config.PokeapiClient.cache.Get(url)
+	if ok {
+		err := json.Unmarshal(cache, &locations)
+		if err == nil {
+			return locations, nil
+		}
+	}
+	res, err := http.Get(url)
+	if err != nil {
+		return locationPokemon{}, fmt.Errorf("bad request: %s", err)
+	}
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	var responsesLocations resultLocation
+	if err := decoder.Decode(&responsesLocations); err != nil {
+		return locationPokemon{}, fmt.Errorf("bad parsing of maps: %s", err)
+	}
+	for _, l := range responsesLocations.Results {
+		locations.List = append(locations.List, l.Name)
+	}
+	locations.NextUrl = responsesLocations.Next
+	locations.PreviousUrl = responsesLocations.Previous
+
+	jsonData, err := json.Marshal(locations)
+	if err != nil {
+		return locations, fmt.Errorf("error serializing locations: %s", err)
+	}
+	config.NextLocationsURL = locations.NextUrl
+	config.PrevLocationsURL = locations.PreviousUrl
+	err = config.PokeapiClient.cache.Add(url, jsonData)
+	if err != nil {
+		return locations, fmt.Errorf("error caching locations: %s", err)
+	}
+	return locations, nil
+}

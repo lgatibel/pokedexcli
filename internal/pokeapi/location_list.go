@@ -16,52 +16,47 @@ type resultLocation struct {
 	}
 }
 
-type Locations struct {
+type locations struct {
 	List        []string
 	NextUrl     string
 	PreviousUrl string
 }
 
-type Page struct {
-	Limit  int
-	Offset int
-}
-
-func ListLocations(config *Config) (Locations, error) {
+func ListLocations(config *Config) (locations, error) {
 	url := BaseUrl + fmt.Sprintf("?limit=%d&offset=%d", config.Page.Limit, config.Page.Offset)
-	var locations Locations
+	var locationsList locations
 	cache, ok := config.PokeapiClient.cache.Get(url)
 	if ok {
-		err := json.Unmarshal(cache, &locations)
+		err := json.Unmarshal(cache, &locationsList)
 		if err == nil {
-			return locations, nil
+			return locationsList, nil
 		}
 	}
 	res, err := http.Get(url)
 	if err != nil {
-		return Locations{}, fmt.Errorf("bad request: %s", err)
+		return locations{}, fmt.Errorf("bad request: %s", err)
 	}
 	defer res.Body.Close()
 	decoder := json.NewDecoder(res.Body)
 	var responsesLocations resultLocation
 	if err := decoder.Decode(&responsesLocations); err != nil {
-		return Locations{}, fmt.Errorf("bad parsing of maps: %s", err)
+		return locations{}, fmt.Errorf("bad parsing of maps: %s", err)
 	}
 	for _, l := range responsesLocations.Results {
-		locations.List = append(locations.List, l.Name)
+		locationsList.List = append(locationsList.List, l.Name)
 	}
-	locations.NextUrl = responsesLocations.Next
-	locations.PreviousUrl = responsesLocations.Previous
+	locationsList.NextUrl = responsesLocations.Next
+	locationsList.PreviousUrl = responsesLocations.Previous
 
-	jsonData, err := json.Marshal(locations)
+	jsonData, err := json.Marshal(locationsList)
 	if err != nil {
-		return locations, fmt.Errorf("error serializing locations: %s", err)
+		return locationsList, fmt.Errorf("error serializing locations: %s", err)
 	}
-	config.NextLocationsURL = locations.NextUrl
-	config.PrevLocationsURL = locations.PreviousUrl
+	config.NextLocationsURL = locationsList.NextUrl
+	config.PrevLocationsURL = locationsList.PreviousUrl
 	err = config.PokeapiClient.cache.Add(url, jsonData)
 	if err != nil {
-		return locations, fmt.Errorf("error caching locations: %s", err)
+		return locationsList, fmt.Errorf("error caching locations: %s", err)
 	}
-	return locations, nil
+	return locationsList, nil
 }
