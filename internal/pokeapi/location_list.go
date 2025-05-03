@@ -23,7 +23,7 @@ type locations struct {
 }
 
 func ListLocations(config *Config) (locations, error) {
-	url := BaseUrl + fmt.Sprintf("?limit=%d&offset=%d", config.Page.Limit, config.Page.Offset)
+	url := baseUrl + fmt.Sprintf("?limit=%d&offset=%d", config.Page.Limit, config.Page.Offset)
 	var locationsList locations
 	cache, ok := config.PokeapiClient.cache.Get(url)
 	if ok {
