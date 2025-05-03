@@ -1,7 +1,6 @@
 package pokecache
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -26,7 +25,7 @@ func NewCache(interval time.Duration) *Cache {
 		Interval: interval,
 		Datas:    make(map[string]cacheEntry),
 	}
-	go cache.reapLoop()
+	cache.reapLoop()
 	return cache
 }
 
@@ -44,24 +43,34 @@ func (c *Cache) Add(key string, data []byte) error {
 	return nil
 }
 
-func (c *Cache) Get(key string) ([]byte, error) {
+func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	if data, ok := c.Datas[key]; ok {
-		return data.val, nil
+		return data.val, true
 	}
-	return nil, fmt.Errorf("no cache entry for the key: %s", key)
+	return nil, false
 }
 
 func (c *Cache) reapLoop() {
-	defer c.mu.Unlock()
-	c.mu.Lock()
-
-	for key, entry := range c.Datas {
-		if time.Since(entry.createdAt) > c.Interval {
-			delete(c.Datas, key)
-			fmt.Println(c.Datas)
+	test := make(chan time.Time)
+	go func() {
+		tick := time.Tick(c.Interval)
+		for t := range tick {
+			test <- t
 		}
-	}
+	}()
+
+	go func() {
+		for range test {
+			for key, entry := range c.Datas {
+				c.mu.Lock()
+				if time.Since(entry.createdAt) >= c.Interval {
+					delete(c.Datas, key)
+				}
+				c.mu.Unlock()
+			}
+		}
+	}()
 }

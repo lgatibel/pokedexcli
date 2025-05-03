@@ -30,16 +30,15 @@ type Page struct {
 
 func ListLocations(config *Config) (Locations, error) {
 	url := BaseUrl + fmt.Sprintf("?limit=%d&offset=%d", config.Page.Limit, config.Page.Offset)
-	cache, err := config.Cache.Get(url)
 	var locations Locations
-	if err == nil {
-		err = json.Unmarshal(cache, &locations)
+	cache, ok := config.PokeapiClient.cache.Get(url)
+	if ok {
+		err := json.Unmarshal(cache, &locations)
 		if err == nil {
 			return locations, nil
 		}
 	}
-	waitTime := time.Second * 2
-	time.Sleep(waitTime)
+	time.Sleep(time.Second * 1)
 	res, err := http.Get(url)
 	if err != nil {
 		return Locations{}, fmt.Errorf("bad request: %s", err)
@@ -62,7 +61,7 @@ func ListLocations(config *Config) (Locations, error) {
 	}
 	config.NextLocationsURL = locations.NextUrl
 	config.PrevLocationsURL = locations.PreviousUrl
-	err = config.Cache.Add(url, jsonData)
+	err = config.PokeapiClient.cache.Add(url, jsonData)
 	if err != nil {
 		return locations, fmt.Errorf("error caching locations: %s", err)
 	}

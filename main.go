@@ -15,7 +15,7 @@ type cliCommand struct {
 // "Welcome to the Pokedex!\nUsage:\n\nhelp: Displays a help message\nexit: Exit the Pokedex",
 func main() {
 	config := &pokeapi.Config{
-		PokeapiClient:    pokeapi.NewClient(3*time.Second, 5*time.Second),
+		PokeapiClient:    *pokeapi.NewClient(3*time.Second, 5*time.Second),
 		PrevLocationsURL: "",
 		NextLocationsURL: "",
 		Page: pokeapi.Page{

@@ -12,7 +12,6 @@ type Config struct {
 	NextLocationsURL string
 	PrevLocationsURL string
 	Page             Page
-	Cache            pokecache.Cache
 }
 
 type Client struct {
@@ -20,8 +19,8 @@ type Client struct {
 	cache      pokecache.Cache
 }
 
-func NewClient(timeout time.Duration, inertval time.Duration) Client {
-	return Client{
+func NewClient(timeout time.Duration, inertval time.Duration) *Client {
+	return &Client{
 		httpClient: http.Client{
 			Timeout: timeout,
 		},
