@@ -42,6 +42,7 @@ func GetPokemon(config *Config, param string) (Pokemon, error) {
 		Height:         pokemonResult.Height,
 		Weight:         pokemonResult.Weight,
 		Stats:          make(map[string]int),
+		Types:          []string{},
 		BaseExperience: pokemonResult.BaseExperience,
 	}
 

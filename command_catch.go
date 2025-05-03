@@ -28,5 +28,5 @@ func commandCatch(config *pokeapi.Config, param string) error {
 
 func isCatch(xp int) bool {
 	random := rand.IntN(xp)
-	return random/2 < random
+	return xp/3 < random
 }
