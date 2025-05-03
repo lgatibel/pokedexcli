@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 type resultLocation struct {
@@ -38,7 +37,6 @@ func ListLocations(config *Config) (Locations, error) {
 			return locations, nil
 		}
 	}
-	time.Sleep(time.Second * 1)
 	res, err := http.Get(url)
 	if err != nil {
 		return Locations{}, fmt.Errorf("bad request: %s", err)
