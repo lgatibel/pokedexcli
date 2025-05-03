@@ -6,7 +6,7 @@ import (
 	"github.com/lgatibel/pokedexcli/internal/pokeapi"
 )
 
-func commandMapB(config *pokeapi.Config) error {
+func commandMapB(config *pokeapi.Config, param string) error {
 	if config.Page.Offset < 1 {
 		return fmt.Errorf("you're on the first page")
 	}
@@ -23,7 +23,7 @@ func commandMapB(config *pokeapi.Config) error {
 	return nil
 }
 
-func commandMap(config *pokeapi.Config) error {
+func commandMap(config *pokeapi.Config, param string) error {
 	locations, err := pokeapi.ListLocations(config)
 	if err != nil {
 		return err

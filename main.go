@@ -9,7 +9,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *pokeapi.Config) error
+	callback    func(config *pokeapi.Config, param string) error
 }
 
 // "Welcome to the Pokedex!\nUsage:\n\nhelp: Displays a help message\nexit: Exit the Pokedex",

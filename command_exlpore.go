@@ -6,19 +6,17 @@ import (
 	"github.com/lgatibel/pokedexcli/internal/pokeapi"
 )
 
-func commandExplore(config *pokeapi.Config) error {
-	if config.Page.Offset < 1 {
-		return fmt.Errorf("you're on the first page")
+func commandExplore(config *pokeapi.Config, param string) error {
+	if param == "" {
+		return fmt.Errorf("no param has been pased")
 	}
-	if config.Page.Offset >= config.Page.Limit {
-		config.Page.Offset -= config.Page.Limit
-	}
-	locations, err := pokeapi.ListLocationPokemon(config)
+	pokemons, err := pokeapi.ListLocationPokemon(config, param)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
-	for _, location := range locations.List {
-		fmt.Println(location)
+	for _, pokemon := range pokemons {
+		fmt.Println(pokemon)
 	}
 	return nil
 }

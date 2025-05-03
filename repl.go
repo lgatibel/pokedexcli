@@ -37,7 +37,7 @@ func startRepl(config *pokeapi.Config) {
 			description: "Display the previous maps",
 			callback:    commandMapB,
 		},
-		"expolore": {
+		"explore": {
 			name:        "explore",
 			description: "Display the pokemon list in the area",
 			callback:    commandExplore,
@@ -48,8 +48,12 @@ func startRepl(config *pokeapi.Config) {
 		text := scanner.Text()
 		words := cleanInput(text)
 		firstWord := words[0]
+		var param string
+		if len(words) > 1 {
+			param = words[1]
+		}
 		if command, ok := commands[firstWord]; ok {
-			if err := command.callback(config); err != nil {
+			if err := command.callback(config, param); err != nil {
 				fmt.Println(err.Error())
 			}
 
